@@ -136,11 +136,16 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr class="border-t border-slate-200">
-						<td colspan="6" class="px-3 py-6 text-center text-slate-400 italic">
-							No transactions yet. Add one using the form above.
-						</td>
-					</tr>
+					{#each transactions as t}
+						<tr class="border-t border-slate-200 hover:bg-slate-50">
+							<td class="px-3 py-2">{t.date}</td>
+							<td class="px-3 py-2">{t.description}</td>
+							<td class="px-3 py-2">{t.debit}</td>
+							<td class="px-3 py-2">{t.credit}</td>
+							<td class="px-3 py-2 text-right">${t.amount.toFixed(2)}</td>
+							<td class="px-3 py-2 text-slate-400">—</td>
+						</tr>
+					{/each}
 				</tbody>
 			</table>
 		</div>
