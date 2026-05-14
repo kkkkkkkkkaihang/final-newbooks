@@ -1,5 +1,29 @@
 <script>
-	// We'll add JavaScript here in Unit 2.
+	// An array of transaction objects.
+	// Square brackets. Each item is a full object. Commas between items.
+	let transactions = $state([
+		{
+			date: '2026-04-01',
+			description: 'Opening cash deposit',
+			debit: 'Cash',
+			credit: "Owner's Equity",
+			amount: 5000
+		},
+		{
+			date: '2026-04-03',
+			description: 'Consulting fee from client',
+			debit: 'Cash',
+			credit: 'Revenue',
+			amount: 1200
+		},
+		{
+			date: '2026-04-05',
+			description: 'April rent',
+			debit: 'Rent Expense',
+			credit: 'Cash',
+			amount: 800
+		}
+	]);
 </script>
 
 <div class="mx-auto max-w-5xl space-y-8 p-6">
