@@ -1,8 +1,8 @@
 <script>
-	// data comes from +page.server.js via the load() function.
+	// Load() returns { transactions: rows }, which arrives here as data.
 	let { data } = $props();
 
-	// Wrap the array in $state so we can push to it after the user adds a transaction.
+	// Wrap so pushing to the array still triggers UI updates.
 	let transactions = $state(data.transactions);
 
 	function classify(t) {
@@ -28,36 +28,6 @@
 	);
 
 	let netIncome = $derived(totalRevenue - totalExpenses);
-
-	// Form states
-	let formDate = $state('');
-	let formDescription = $state('');
-	let formDebit = $state('');
-	let formCredit = $state('');
-	let formAmount = $state(0);
-
-	function addTransaction(event) {
-		event.preventDefault();
-
-		// Build a new transaction object from the form values.
-		const t = {
-			date: formDate,
-			description: formDescription,
-			debit: formDebit,
-			credit: formCredit,
-			amount: Number(formAmount)
-		};
-
-		// Add it to the array. The page updates automatically.
-		transactions.push(t);
-
-		// Clear the form so it's ready for the next entry.
-		formDate = '';
-		formDescription = '';
-		formDebit = '';
-		formCredit = '';
-		formAmount = 0;
-	}
 </script>
 
 <div class="mx-auto max-w-5xl space-y-8 p-6">
@@ -69,12 +39,12 @@
 	<section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
 		<h2 class="mb-4 text-xl font-bold text-slate-800">New Transaction</h2>
 
-		<form onsubmit={addTransaction} class="grid grid-cols-1 gap-4 md:grid-cols-2">
+		<form method="POST" class="grid grid-cols-1 gap-4 md:grid-cols-2">
 			<div>
 				<label class="mb-1 block text-sm font-medium text-slate-700">Date</label>
 				<input
 					type="date"
-					bind:value={formDate}
+					name="date"
 					required
 					class="w-full rounded border border-slate-300 px-3 py-2"
 				/>
@@ -86,7 +56,7 @@
 					type="number"
 					step="0.01"
 					placeholder="0.00"
-					bind:value={formAmount}
+					name="amount"
 					required
 					class="w-full rounded border border-slate-300 px-3 py-2"
 				/>
@@ -97,7 +67,7 @@
 				<input
 					type="text"
 					placeholder="e.g. Office rent for July"
-					bind:value={formDescription}
+					name="description"
 					required
 					class="w-full rounded border border-slate-300 px-3 py-2"
 				/>
@@ -105,35 +75,27 @@
 
 			<div>
 				<label class="mb-1 block text-sm font-medium text-slate-700">Debit Account</label>
-				<select
-					bind:value={formDebit}
-					required
-					class="w-full rounded border border-slate-300 px-3 py-2"
-				>
+				<select name="debit" required class="w-full rounded border border-slate-300 px-3 py-2">
 					<option value="">-- Select --</option>
-					<option>Cash</option>
-					<option>Accounts Receivable</option>
-					<option>Revenue</option>
-					<option>Rent Expense</option>
-					<option>Utilities Expense</option>
-					<option>Owner's Equity</option>
+					<option value="Cash">Cash</option>
+					<option value="Accounts Receivable">Accounts Receivable</option>
+					<option value="Revenue">Revenue</option>
+					<option value="Rent Expense">Rent Expense</option>
+					<option value="Utilities Expense">Utilities Expense</option>
+					<option value="Owner's Equity">Owner's Equity</option>
 				</select>
 			</div>
 
 			<div>
 				<label class="mb-1 block text-sm font-medium text-slate-700">Credit Account</label>
-				<select
-					bind:value={formCredit}
-					required
-					class="w-full rounded border border-slate-300 px-3 py-2"
-				>
+				<select name="credit" required class="w-full rounded border border-slate-300 px-3 py-2">
 					<option value="">-- Select --</option>
-					<option>Cash</option>
-					<option>Accounts Receivable</option>
-					<option>Revenue</option>
-					<option>Rent Expense</option>
-					<option>Utilities Expense</option>
-					<option>Owner's Equity</option>
+					<option value="Cash">Cash</option>
+					<option value="Accounts Receivable">Accounts Receivable</option>
+					<option value="Revenue">Revenue</option>
+					<option value="Rent Expense">Rent Expense</option>
+					<option value="Utilities Expense">Utilities Expense</option>
+					<option value="Owner's Equity">Owner's Equity</option>
 				</select>
 			</div>
 
