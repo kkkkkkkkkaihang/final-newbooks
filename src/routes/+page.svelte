@@ -1,31 +1,10 @@
 <script>
-	// An array of transaction objects.
-	// Square brackets. Each item is a full object. Commas between items.
-	let transactions = $state([
-		{
-			date: '2026-04-01',
-			description: 'Opening cash deposit',
-			debit: 'Cash',
-			credit: "Owner's Equity",
-			amount: 5000
-		},
-		{
-			date: '2026-04-03',
-			description: 'Consulting fee from client',
-			debit: 'Cash',
-			credit: 'Revenue',
-			amount: 1200
-		},
-		{
-			date: '2026-04-05',
-			description: 'April rent',
-			debit: 'Rent Expense',
-			credit: 'Cash',
-			amount: 800
-		}
-	]);
+	// data comes from +page.server.js via the load() function.
+	let { data } = $props();
 
-	// Add this INSIDE the <script> block, below the transactions array.
+	// Wrap the array in $state so we can push to it after the user adds a transaction.
+	let transactions = $state(data.transactions);
+
 	function classify(t) {
 		if (t.credit === 'Revenue') {
 			return 'Revenue';
@@ -37,31 +16,68 @@
 	}
 
 	let totalRevenue = $derived(
-		transactions.filter((t) => classify(t) === 'Revenue').reduce((sum, t) => sum + t.amount, 0)
+		transactions
+			.filter((t) => classify(t) === 'Revenue')
+			.reduce((sum, t) => sum + Number(t.amount), 0)
 	);
 
 	let totalExpenses = $derived(
-		transactions.filter((t) => classify(t) === 'Expense').reduce((sum, t) => sum + t.amount, 0)
+		transactions
+			.filter((t) => classify(t) === 'Expense')
+			.reduce((sum, t) => sum + Number(t.amount), 0)
 	);
 
 	let netIncome = $derived(totalRevenue - totalExpenses);
+
+	// Form states
+	let formDate = $state('');
+	let formDescription = $state('');
+	let formDebit = $state('');
+	let formCredit = $state('');
+	let formAmount = $state(0);
+
+	function addTransaction(event) {
+		event.preventDefault();
+
+		// Build a new transaction object from the form values.
+		const t = {
+			date: formDate,
+			description: formDescription,
+			debit: formDebit,
+			credit: formCredit,
+			amount: Number(formAmount)
+		};
+
+		// Add it to the array. The page updates automatically.
+		transactions.push(t);
+
+		// Clear the form so it's ready for the next entry.
+		formDate = '';
+		formDescription = '';
+		formDebit = '';
+		formCredit = '';
+		formAmount = 0;
+	}
 </script>
 
 <div class="mx-auto max-w-5xl space-y-8 p-6">
-	<!-- HEADER -->
 	<header class="border-b border-slate-200 pb-4">
 		<h1 class="text-3xl font-bold text-slate-800">📒 Final New Books</h1>
 		<p class="mt-1 text-sm text-slate-500">Track transactions. See your income statement live.</p>
 	</header>
 
-	<!-- NEW TRANSACTION FORM -->
 	<section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
 		<h2 class="mb-4 text-xl font-bold text-slate-800">New Transaction</h2>
 
-		<form class="grid grid-cols-1 gap-4 md:grid-cols-2">
+		<form onsubmit={addTransaction} class="grid grid-cols-1 gap-4 md:grid-cols-2">
 			<div>
 				<label class="mb-1 block text-sm font-medium text-slate-700">Date</label>
-				<input type="date" class="w-full rounded border border-slate-300 px-3 py-2" />
+				<input
+					type="date"
+					bind:value={formDate}
+					required
+					class="w-full rounded border border-slate-300 px-3 py-2"
+				/>
 			</div>
 
 			<div>
@@ -70,6 +86,8 @@
 					type="number"
 					step="0.01"
 					placeholder="0.00"
+					bind:value={formAmount}
+					required
 					class="w-full rounded border border-slate-300 px-3 py-2"
 				/>
 			</div>
@@ -79,13 +97,19 @@
 				<input
 					type="text"
 					placeholder="e.g. Office rent for July"
+					bind:value={formDescription}
+					required
 					class="w-full rounded border border-slate-300 px-3 py-2"
 				/>
 			</div>
 
 			<div>
 				<label class="mb-1 block text-sm font-medium text-slate-700">Debit Account</label>
-				<select class="w-full rounded border border-slate-300 px-3 py-2">
+				<select
+					bind:value={formDebit}
+					required
+					class="w-full rounded border border-slate-300 px-3 py-2"
+				>
 					<option value="">-- Select --</option>
 					<option>Cash</option>
 					<option>Accounts Receivable</option>
@@ -98,7 +122,11 @@
 
 			<div>
 				<label class="mb-1 block text-sm font-medium text-slate-700">Credit Account</label>
-				<select class="w-full rounded border border-slate-300 px-3 py-2">
+				<select
+					bind:value={formCredit}
+					required
+					class="w-full rounded border border-slate-300 px-3 py-2"
+				>
 					<option value="">-- Select --</option>
 					<option>Cash</option>
 					<option>Accounts Receivable</option>
@@ -120,7 +148,6 @@
 		</form>
 	</section>
 
-	<!-- INCOME STATEMENT -->
 	<section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
 		<h2 class="mb-4 text-xl font-bold text-slate-800">Income Statement</h2>
 
@@ -142,7 +169,6 @@
 		</div>
 	</section>
 
-	<!-- TRANSACTIONS LIST -->
 	<section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
 		<h2 class="mb-4 text-xl font-bold text-slate-800">Recent Transactions</h2>
 
@@ -165,7 +191,7 @@
 							<td class="px-3 py-2">{t.description}</td>
 							<td class="px-3 py-2">{t.debit}</td>
 							<td class="px-3 py-2">{t.credit}</td>
-							<td class="px-3 py-2 text-right">${t.amount.toFixed(2)}</td>
+							<td class="px-3 py-2 text-right">${Number(t.amount).toFixed(2)}</td>
 							<td class="px-3 py-2">
 								{#if classify(t) === 'Revenue'}
 									<span class="font-medium text-emerald-700">Revenue</span>
