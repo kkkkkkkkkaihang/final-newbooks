@@ -14,7 +14,7 @@ export async function load() {
   // Assign the result to a variable called `rows`,
   // then return { transactions: rows }.
 
-  const rows = await sql`
+ const rows = await sql`
   SELECT id, date::text AS date, description, debit, credit, amount
   FROM transactions
   ORDER BY date
