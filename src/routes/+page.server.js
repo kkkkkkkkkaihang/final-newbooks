@@ -43,6 +43,6 @@ export const actions = {
 
         // 3. Return success. SvelteKit will re-run load() automatically,
         //    so the page picks up the new row.
-        return { success: true };
+       return { success: true };
     }
 };
